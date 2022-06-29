@@ -5,7 +5,7 @@
 #include<iostream>
 
 
-#define MAXINODE 50
+#define MAXINODE 5
 
 #define READ 1
 #define WRITE 2
@@ -132,6 +132,63 @@ void DisplayHelp()
     printf("ls : To List out all files\n");
     printf("clear : To clear console\n");
     printf("open : To open the file\n");
-    printf("close : To close all opened files\n");
+    printf("close : To close the opened file\n");
+    printf("closeall: To close all opened files\n");
+    printf("read : To Read the contents into file\n");
+    printf("write:To Write contents into file\n");
+    printf("exit: To terminate file sysem\n");
+    printf("stat : To Dispaly information of file usinf name\n");
+    printf("fstat : To Dispaly information of file using file descriptor\n");
+    printf("truncate: To Remove all the data from file \n");
+    printf("rm : To delete the file\n");
 }
 
+int GetFDFromName(char *name)
+{
+    int i=0;
+
+    while(i<MAXINODE)
+    {
+        if(UFDT[i].ptrfiletable!=NULL)
+        {
+            if(strcmp((UFDTArr[i].ptrfiletable->ptrinode->FileName),name)==0)
+            {
+                break;
+            }
+            i++;
+        }
+    }    
+    if(i==MAXINODE)
+    {
+        return -1;
+    } 
+    else
+    {
+        return i;
+    }
+}
+
+PINODE Get_Inode(char *name)
+{
+    PINODE temp = head;
+    int i=0;
+
+    if(name==NULL)
+    {
+        return NULL;
+    }
+    while(temp!=NULL)
+    {
+        if(strcmp(name,temp->FileName)==0)
+        {
+            break;
+        }
+        temp = temp->next;
+    }
+    return temp;
+}
+
+void CreateDILB()
+{
+    
+}
