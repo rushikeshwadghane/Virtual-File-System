@@ -346,8 +346,110 @@ int ReadFile(int fd, char *arr, int isize)
     return isize;
 }
 
+int WriteFile(int fd,char *arr,int isize)
+{
+    if(((UFDTArr[fd].ptrfiletable->mode)!= WRITE) && ((UFDTArr[fd].ptrfiletable->mode)!= READ+WRITE))
+    {
+        return -1;
+    }
+    else if(((UFDTArr[fd].ptrfiletable->ptrinode->permission)!= WRITE) && ((UFDTArr[fd].ptrfiletable->ptrinode->permission)!= READ+WRITE))
+    {
+        return -1;
+    }
+    else if ((UFDTArr[fd].ptrfiletable->writeoffset)== MAXFILESIZE)
+    {
+        return -2;
+    }
+    if((UFDTArr[fd].ptrfiletable->ptrinode->FileType)!= REGULAR)
+    {
+        return -3;
+    }
+    strncpy((UFDTArr[fd].ptrfiletable->ptrinode->Buffer)+(UFDTArr[fd].ptrfiletable->writeoffset),arr,isize);
 
+    (UFDTArr[fd].ptrfiletable->writeoffset) = (UFDTArr[fd].ptrfiletable->writeoffset)+isize;
 
+    (UFDTArr[fd].ptrfiletable->ptrinode->FileActualSize)=(UFDTArr[fd].ptrfiletable->ptrinode->FileActualSize)+isize;
+
+    return isize;
+}
+
+int OpenFile(char *name, int mode)
+{
+    int i=0;
+    PINODE temp = NULL;
+    if(name == NULL || mode<=0)
+    {
+        return -1;
+    }
+    temp = Get_Inode(name);
+    if(temp == NULL)
+    {
+        return -2;
+    }
+    if(temp->permission < mode)
+    {
+        return -3;
+    } 
+    while(i<MAXINODE)
+    {
+        if(UFDTArr[i].ptrfiletable == NULL)
+        {
+            break;
+            i++;
+        }
+    }
+    UFDTArr[i].ptrfiletable = (PFILETABLE)malloc(sizeof(FILETABLE));
+    if(UFDTArr[i].ptrfiletable == NULL)
+    {
+        return -1;
+    }
+    UFDTArr[i].ptrfiletable->count =1;
+    UFDTArr[i].ptrfiletable->mode =mode;
+    if(mode == READ+WRITE)
+    {
+        UFDTArr[i].ptrfiletable->readoffset = 0;
+        UFDTArr[i].ptrfiletable->writeoffset = 0;
+    }
+    else if(mode == READ)
+    {
+        UFDTArr[i].ptrfiletable->readoffset = 0;
+    }
+    else if(mode == WRITE)
+    {
+        UFDTArr[i].ptrfiletable->writeoffset =0;
+    }
+    UFDTArr[i].ptrfiletable->ptrinode = temp;
+    (UFDTArr[i].ptrfiletable->ptrinode->ReferanceCount)++;
+
+    return i;
+}
+void CloseFileByName(int fd)
+{
+    UFDTArr[fd].ptrfiletable->readoffset = 0;
+    UFDTArr[fd].ptrfiletable->writeoffset = 0;
+    (UFDTArr[fd].ptrfiletable->ptrinode->ReferanceCount)--;
+
+}
+
+int CloseFileByName(char *name)
+{
+    int i=0;
+     i = GetFDFromName(name);
+    if(i== -1)
+    {
+        return -1;
+    }
+    UFDTArr[i].ptrfiletable->readoffset = 0;
+    UFDTArr[i].ptrfiletable->writeoffset =0;
+    (UFDTArr[i].ptrfiletable->ptrinode->ReferanceCount)--;
+
+    return 0;
+}
+
+void CloseAllFile()
+{
+    
+}
 
 
 
