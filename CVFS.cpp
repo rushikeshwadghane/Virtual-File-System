@@ -231,6 +231,232 @@ void InitialiseSuperBlock()
     
     SUPERBLOCKobj.TotalInodes = MAXINODE;
     SUPERBLOCKobj.Freenode = MAXINODE;
+}
+int CreateFile(char *name ,int permission)
+{
+    int i=0;
+    PINODE temp =head;
+}
 
-       
+
+
+
+
+
+int main()
+{
+    char *ptr =NULL;
+    int ret =0,fd=0,count=0;
+    char command[4][80],str[80],arr[1024];
+
+    InitialiseSuperBlock();
+    CreateDILB();
+
+    while(1)
+    {
+        fflush(stdin);
+        strcpy(str,"");
+
+        printf("\nVFS : >");
+
+        fgets(str,80,stdin); // scanf("%[^'\n']s",str);
+        count = sscanf(str,"%s %s %s %s",command[0],command[1],command[2],command[3]);
+        if(count==1)
+        {
+            if(strcmp(command[0],"ls")==0)
+            {
+                ls_file();
+            }
+            else if(strcmp(command[0],"closeall")== 0)
+            {
+
+            }
+            else if(strcmp(command[0],"clear")== 0)
+            {
+                
+            }
+            else if(strcmp(command[0],"help")== 0)
+            {
+                
+            }
+            else if(strcmp(command[0],"exit")== 0)
+            {
+                
+            }
+            else
+            {
+                printf("\nERROR : Command not fount!!\n");
+                continue;
+            }                                                
+        }
+        else if(count==2)
+        {
+            if(strcmp(command[0],"stat")==0)
+            {
+                ret = stat_file(command[1]);
+                if(ret == -1)
+                {
+                    printf("ERROR: Incorrect parameter\n");
+                }
+                if(ret == -2)
+                {                 
+                    printf("ERROR : There is no such file\n");
+                }
+                continue;    
+            }
+            else if(strcmp(command[0],"fstat")==0)
+            {
+
+            }
+            else if(strcmp(command[0],"close")==0)
+            {
+                
+            }
+            else if(strcmp(command[0],"rm")==0)
+            {
+                
+            }
+            else if(strcmp(command[0],"man")==0)
+            {
+                
+            }
+            else if(strcmp(command[0],"write")==0)
+            {
+                
+            }
+            else if(strcmp(command[0],"truncate")==0)
+            {
+                
+            }
+            else
+            {
+                printf("\nERROR : Command not fount!!\n");
+                continue;
+            }                                                                        
+        }
+    else if(count == 3)
+    {
+        if(strcmp(command[0],"create")== 0)
+        {
+            ret = CreateFile(command[1],atoi(command[2]));
+            if(ret>=0)
+            {
+                printf("file is successfully created with file descriptor : %d\n",ret);
+            }
+            if(ret == -1)
+            {
+                printf("ERROR: Incorrect parameter:");
+            }
+            if(ret== -2)
+            {
+                printf("There is no inodes\n");
+            }
+            if(ret == -3)
+            {
+                printf("ERROR : File already exist\n");
+            }
+            if(ret == -4)
+            {
+                printf("ERROR : Memory allocation failure\n");
+            }
+            continue;
+        }
+        
+        else if(strcmp(command[0],"open")==0)
+        {
+            ret  = OpenFile(command[1],atoi(command[2]));
+                if(ret>=0)
+                {
+                    printf("file is successfully opened with file descriptor : %d\n",ret);
+                }
+                if(ret == -1)
+                {
+                    printf("ERROR: Incorrect parameter:");
+                }
+                if(ret== -2)
+                {
+                    printf("ERROR: File not present\n");
+                }
+                if(ret == -3)
+                {
+                    printf("ERROR : Permission denied\n");
+                }
+                continue;            
+        }
+        else  if((command[0],"read")==0)
+        {
+            fd = GetFDFromName(command[1]);
+            if(fd== -1)
+            {
+                printf("Error : Incorrect parameter\n");
+                continue;
+            }
+            ptr = (char*)malloc(sizeof(atoi(command[2]))+1);
+            if(ptr==NULL)
+            {
+                printf("Error : Memory allocation failed\n");
+                continue;
+            }
+            ret = ReadFile(fd,ptr,atoi(command[2]));
+                if(ret == -1)
+                {
+                    printf("ERROR: File not Exitsting\n");
+                }
+                if(ret== -2)
+                {
+                    printf("Error: Permission denied\n");
+                }
+                if(ret == -3)
+                {
+                    printf("ERROR : Reached at the end of file\n");
+                }
+                if(ret == -4)
+                {
+                    printf("ERROR : It is not regukar file\n");
+                }
+                else if(ret==0)
+                {
+                    printf("Error: File empty\n");
+                }
+                else if(ret > 0)
+                {
+                    write(2,ptr,ret);
+                }            
+                continue;
+        }
+        else
+        {
+            printf("\nError : Command not found!!\n");
+            continue;
+        }
+    }
+    
+    else if(count == 4)
+    {
+        if(strcmp(command[0],"lseek")== 0)
+        {
+            fd = GetFDFromName(command[1]);
+            if(fd == -1)
+            {
+                printf("Error : Incorrect parameter\n");
+                continue;
+            }
+            ret = lseekFile(fd,atoi(command[2]),atoi(command[3]));
+            if(ret == -1)
+            {
+                printf("Error : Unable to perform lssek\n");
+            }
+        }
+        else{
+            printf("\nError : Command not found!!\n");
+            continue;
+        }
+    }
+    else
+    {
+        printf("\nError : Command not found!!\n");
+        continue;
+    }
+}
+    return 0 ;    
 }
