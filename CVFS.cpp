@@ -53,7 +53,7 @@ typedef struct ufdt
     PFILETABLE ptrfiletable;
 }UFDT;
 
-UFDT UFDTArr[50];
+UFDT UFDTArr[MAXINODE];
 SUPERBLOCK SUPERBLOCKOBJ;
 PINODE head = NULL;
 
@@ -149,7 +149,7 @@ int GetFDFromName(char *name)
 
     while(i<MAXINODE)
     {
-        if(UFDT[i].ptrfiletable!=NULL)
+        if(UFDTArr[i].ptrfiletable!=NULL)
         {
             if(strcmp((UFDTArr[i].ptrfiletable->ptrinode->FileName),name)==0)
             {
@@ -190,5 +190,47 @@ PINODE Get_Inode(char *name)
 
 void CreateDILB()
 {
+    int i =1;
+    PINODE newn = NULL;
+    PINODE temp = head;
+
+    while(i<=MAXINODE)
+    {
+         newn = (PINODE)malloc(sizeof(INODE));
+         newn->LinkCount = 0;
+         newn->ReferanceCount=0;
+         newn->FileType=0;
+         newn->FileSize=0;
+         newn->Buffer = NULL;
+         newn->next = NULL;
+         newn->InodeNumber = 0;
+
+            if(temp==NULL)
+            {
+                head =newn;
+                temp  = head;
+            }
+            else
+            {
+                temp->next = newn;
+                temp = temp->next;
+            }
+            i++;
+    }
+    printf("DILB created succesfully\n");
+}
+
+void InitialiseSuperBlock()
+{
+    int i = 0;
+    while(i<MAXINODE)
+    {
+        UFDTArr[i].ptrfiletable = NULL;
+        i++;
+    }
     
+    SUPERBLOCKobj.TotalInodes = MAXINODE;
+    SUPERBLOCKobj.Freenode = MAXINODE;
+
+       
 }
