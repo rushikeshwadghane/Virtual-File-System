@@ -54,7 +54,7 @@ typedef struct ufdt
 }UFDT;
 
 UFDT UFDTArr[MAXINODE];
-SUPERBLOCK SUPERBLOCKOBJ;
+SUPERBLOCK SUPERBLOCKobj;
 PINODE head = NULL;
 
 void man(char *name)
@@ -230,13 +230,135 @@ void InitialiseSuperBlock()
     }
     
     SUPERBLOCKobj.TotalInodes = MAXINODE;
-    SUPERBLOCKobj.Freenode = MAXINODE;
+    SUPERBLOCKobj.FreeInodes = MAXINODE;
 }
 int CreateFile(char *name ,int permission)
 {
     int i=0;
     PINODE temp =head;
+    if((name == NULL)||(permission==0)||(permission>3))
+    {
+        return -1;
+    }
+    if(SUPERBLOCKobj.FreeInodes == 0)
+    {
+        return -2;
+    }
+    (SUPERBLOCKobj.TotalInodes)--;
+
+    if(Get_Inode(name)!= NULL)
+    {
+        return -3;
+    }
+    while(temp!=NULL)
+    {
+        if(temp->FileType == 0)
+        {
+            break;
+        }
+        temp = temp->next;
+    }
+    while(i<MAXINODE)
+    {
+        if(UFDTArr[i].ptrfiletable==NULL)
+        break;
+        i++;
+    }
+UFDTArr[i].ptrfiletable = (PFILETABLE)malloc(sizeof(FILETABLE));
+
+UFDTArr[i].ptrfiletable->count = 1;
+UFDTArr[i].ptrfiletable->mode = permission;
+UFDTArr[i].ptrfiletable->readoffset = 0;
+UFDTArr[i].ptrfiletable->writeoffset=0;
+
+UFDTArr[i].ptrfiletable->ptrinode = temp;
+
+strcpy(UFDTArr[i].ptrfiletable->ptrinode->FileName,name);
+UFDTArr[i].ptrfiletable->ptrinode->FileType = REGULAR;
+UFDTArr[i].ptrfiletable->ptrinode->ReferanceCount =1;
+UFDTArr[i].ptrfiletable->ptrinode->LinkCount = 1;
+UFDTArr[i].ptrfiletable->ptrinode->FileSize = MAXFILESIZE;
+UFDTArr[i].ptrfiletable->ptrinode->FileActualSize =0;
+UFDTArr[i].ptrfiletable->ptrinode->permission = permission;
+UFDTArr[i].ptrfiletable->ptrinode->Buffer = (char*)malloc(MAXFILESIZE);
+
+return i;
+
 }
+
+int rm_File(char *name)
+{
+    int fd = 0;
+    fd = GetFDFromName(name);
+    if(fd == -1)
+    {
+        return -1;
+    }
+    (UFDTArr[fd].ptrfiletable->ptrinode->LinkCount)--;
+
+    if(UFDTArr[fd].ptrfiletable->ptrinode->LinkCount ==0)
+    {
+        UFDTArr[fd].ptrfiletable->ptrinode->FileType = 0;
+    
+    }
+    UFDTArr[fd].ptrfiletable = NULL;
+    (SUPERBLOCKobj.FreeInodes)++;
+}
+
+int ReadFile(int fd, char *arr, int isize)
+{
+    int read_size = 0;
+
+    if(UFDTArr->ptrfiletable == NULL)
+    {
+        return -1;
+    }
+    if(UFDTArr[fd].ptrfiletable->mode != READ && UFDTArr[fd].ptrfiletable->mode != READ+WRITE)
+    {
+        return -2;
+    }
+    if(UFDTArr[fd].ptrfiletable->ptrinode->permission !=READ && UFDTArr[fd].ptrfiletable->ptrinode->permission != READ+WRITE)
+    {
+        return -2;
+    }
+    if (UFDTArr[fd].ptrfiletable->readoffset == UFDTArr[fd].ptrfiletable->ptrinode->FileActualSize)
+    {
+        return -3;
+    }
+    if(UFDTArr[fd].ptrfiletable->ptrinode->FileType != REGULAR)
+    {
+        return -4;
+    }
+    read_size = (UFDTArr[fd].ptrfiletable->ptrinode->FileActualSize)-(UFDTArr[fd].ptrfiletable->readoffset);
+
+    if(read_size < isize)
+    {
+        strncpy(arr,(UFDTArr[fd].ptrfiletable->ptrinode->Buffer)+(UFDTArr[fd].ptrfiletable->readoffset),read_size);
+
+        UFDTArr[fd].ptrfiletable->readoffset = UFDTArr[fd].ptrfiletable->readoffset+read_size;
+    }
+    else
+    {
+        strncpy(arr,(UFDTArr[fd].ptrfiletable->ptrinode->Buffer)+(UFDTArr[fd].ptrfiletable->readoffset),isize);
+
+        UFDTArr[fd].ptrfiletable->readoffset = UFDTArr[fd].ptrfiletable->readoffset+isize;
+    }     
+    return isize;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
