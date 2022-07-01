@@ -570,9 +570,63 @@ void ls_file()
         printf("Error : There are no files\n");
         return;
     }
-    printf("\nFile Name")
+    printf("\nFile Name\tInode number\tFile size\tLink count\n");
+    printf("-------------------------------------------------------\n");
+    while(temp !=NULL)
+    {
+        if(temp->FileType !=NULL)
+        {
+            printf("%s\t\t%d\t\t%d\t\t%d\n",temp->FileName,temp->InodeNumber,temp->FileActualSize,temp->LinkCount);
+    
+        }
+        temp = temp->next;
+    }
+    printf("-------------------------------------------------------------\n");
 }
 
+int fstat_file(int fd)
+{
+    PINODE temp = head;
+    int i = 0;
+    if(fd < 0)
+    {
+        return -1;
+    }
+    else if(UFDTArr[fd].ptrfiletable == NULL)
+    {
+        return -2;
+    }
+    temp = UFDTArr[fd].ptrfiletable->ptrinode;
+    printf("\n----------Statistical Information about file---------------\n");
+    printf("File name : %s\n",temp->FileName);
+    printf("Inode number : %d\n",temp->InodeNumber);
+    printf("File size : %d\n",temp->FileSize);
+    printf("Actual File size : %d\n",temp->FileActualSize);
+    printf("Link count : %d\n",temp->LinkCount);
+    printf("Refrence count : %d\n",temp->ReferanceCount);
+
+    if(temp->permission == 1)
+    {
+        printf("File permission : Read Only\n");
+    }
+    else if(temp->permission == 2)
+    {
+        printf("File Permission : Write\n");
+    }
+    else if(temp->permission == 3)
+    {
+        printf("File Permission : Read & Write\n");
+    }
+
+    printf("---------------------------------------------------------------\n\n");
+
+    return 0;
+}
+int stat_file(char *name)
+{
+    PINODE temp = head;
+    
+}
 
 
 
@@ -783,7 +837,7 @@ int main()
                 printf("Error : Incorrect parameter\n");
                 continue;
             }
-            ret = lseekFile(fd,atoi(command[2]),atoi(command[3]));
+            ret = LseekFile(fd,atoi(command[2]),atoi(command[3]));
             if(ret == -1)
             {
                 printf("Error : Unable to perform lssek\n");
