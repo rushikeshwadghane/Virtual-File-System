@@ -131,13 +131,14 @@ void DisplayHelp()
 {
     printf("ls : To List out all files\n");
     printf("clear : To clear console\n");
+    printf("create : To create new file\n");
     printf("open : To open the file\n");
     printf("close : To close the opened file\n");
     printf("closeall: To close all opened files\n");
     printf("read : To Read the contents into file\n");
     printf("write:To Write contents into file\n");
     printf("exit: To terminate file sysem\n");
-    printf("stat : To Dispaly information of file usinf name\n");
+    printf("stat : To Dispaly information of file using name\n");
     printf("fstat : To Dispaly information of file using file descriptor\n");
     printf("truncate: To Remove all the data from file \n");
     printf("rm : To delete the file\n");
@@ -352,11 +353,11 @@ int WriteFile(int fd,char *arr,int isize)
     {
         return -1;
     }
-    else if(((UFDTArr[fd].ptrfiletable->ptrinode->permission)!= WRITE) && ((UFDTArr[fd].ptrfiletable->ptrinode->permission)!= READ+WRITE))
+    if(((UFDTArr[fd].ptrfiletable->ptrinode->permission)!= WRITE) && ((UFDTArr[fd].ptrfiletable->ptrinode->permission)!= READ+WRITE))
     {
         return -1;
     }
-    else if ((UFDTArr[fd].ptrfiletable->writeoffset)== MAXFILESIZE)
+    if ((UFDTArr[fd].ptrfiletable->writeoffset)== MAXFILESIZE)
     {
         return -2;
     }
@@ -574,7 +575,7 @@ void ls_file()
     printf("-------------------------------------------------------\n");
     while(temp !=NULL)
     {
-        if(temp->FileType !=NULL)
+        if(temp->FileType != 0)
         {
             printf("%s\t\t%d\t\t%d\t\t%d\n",temp->FileName,temp->InodeNumber,temp->FileActualSize,temp->LinkCount);
     
@@ -695,7 +696,7 @@ int main()
         fflush(stdin);
         strcpy(str,"");
 
-        printf("\nVFS : >");
+        printf("\nVFS : > ");
 
         fgets(str,80,stdin); // scanf("%[^'\n']s",str);
         count = sscanf(str,"%s %s %s %s",command[0],command[1],command[2],command[3]);
