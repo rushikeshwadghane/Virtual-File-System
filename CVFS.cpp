@@ -625,18 +625,60 @@ int fstat_file(int fd)
 int stat_file(char *name)
 {
     PINODE temp = head;
-    
+    int i =0;
+
+    if(name == NULL)
+    {
+        return -1;
+    }
+    while(temp!= NULL)
+    {
+        if(strcmp(name,temp->FileName)== 0)
+        {
+            break;
+        }
+        temp = temp->next;
+    }
+    if(temp == NULL)
+    {
+        return -2;
+    }
+    printf("\n----------Statistical Information about file---------------\n");
+    printf("File name : %s\n",temp->FileName);
+    printf("Inode number : %d\n",temp->InodeNumber);
+    printf("File size : %d\n",temp->FileSize);
+    printf("Actual File size : %d\n",temp->FileActualSize);
+    printf("Link count : %d\n",temp->LinkCount);
+    printf("Refrence count : %d\n",temp->ReferanceCount);
+
+    if(temp->permission == 1)
+    {
+        printf("File permission : Read Only\n");
+    }
+    else if(temp->permission == 2)
+    {
+        printf("File Permission : Write\n");
+    }
+    else if(temp->permission == 3)
+    {
+        printf("File Permission : Read & Write\n");
+    }
+
+    printf("---------------------------------------------------------------\n\n");    
+    return 0;
 }
-
-
-
-
-
-
-
-
-
-
+int truncate_File(char *name)
+{
+    int fd = GetFDFromName(name);
+    if(fd== -1)
+    {
+        return -1;
+    }
+    memset(UFDTArr[fd].ptrfiletable->ptrinode->Buffer,0,1024);
+    UFDTArr[fd].ptrfiletable->readoffset = 0 ;
+    UFDTArr[fd].ptrfiletable->writeoffset = 0;
+    UFDTArr[fd].ptrfiletable->ptrinode->FileActualSize = 0;
+}
 
 
 int main()
@@ -665,19 +707,24 @@ int main()
             }
             else if(strcmp(command[0],"closeall")== 0)
             {
-
+                CloseAllFile();
+                printf("All file closed successfully\n");
+                continue;
             }
             else if(strcmp(command[0],"clear")== 0)
             {
-                
+                system("clear");
+                continue;
             }
             else if(strcmp(command[0],"help")== 0)
             {
-                
+                DisplayHelp();
+                continue;
             }
             else if(strcmp(command[0],"exit")== 0)
             {
-                
+                printf("Terminating the Virtual file system\n");
+                break;
             }
             else
             {
@@ -702,27 +749,77 @@ int main()
             }
             else if(strcmp(command[0],"fstat")==0)
             {
-
+                ret = fstat_file(atoi(command[1]));
+                if(ret == -1)
+                {
+                    printf("Error : Incorrect parameters\n");
+                }
+                if(ret == -2)
+                {
+                    printf("Error : There is no such file \n");
+                }
+                continue;
             }
             else if(strcmp(command[0],"close")==0)
             {
-                
+                ret = CloseFileByName(command[1]);
+                if(ret == -1)
+                {
+                    printf("Error :There is no such file\n");
+                }
+                continue;
             }
             else if(strcmp(command[0],"rm")==0)
             {
-                
+                ret = rm_File(command[1]);
+                if(ret == -1)
+                {
+                    printf("Error : There is no such file");
+
+                }
+                continue;
             }
             else if(strcmp(command[0],"man")==0)
             {
-                
+                man(command[1]);
             }
             else if(strcmp(command[0],"write")==0)
             {
-                
+                fd = GetFDFromName(command[1]);
+                if(fd == -1)
+                {
+                    printf("Error : Incorrect Parameter:\n");
+                    continue;
+                }
+                printf("Enter the data :\n");
+                scanf("%[^\n]s",arr);
+                ret = strlen(arr);
+                if(ret == 0)
+                {
+                    printf("Error : Incorrect parameter\n");
+                    continue;
+                }
+                ret = WriteFile(fd,arr,ret);
+                if(ret == -1)
+                {
+                    printf("Error : Permission denied\n");
+                }
+                if(ret == -2)
+                {
+                    printf("Error : There is no sufficient memory to write\n");
+                } 
+                if(ret == -3)
+                {
+                    printf("Error : It's not regular file\n");
+                }                               
             }
             else if(strcmp(command[0],"truncate")==0)
             {
-                
+                ret = truncate_File(command[1]);
+                if(ret == -1)
+                {
+                    printf("Incorrect parameter\n");
+                }
             }
             else
             {
