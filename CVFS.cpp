@@ -5,12 +5,12 @@
 #include<iostream>
 
 
-#define MAXINODE 5
+#define MAXINODE 50
 
 #define READ 1
 #define WRITE 2
 
-#define MAXFILESIZE 2048
+#define MAXFILESIZE 1048
 
 #define REGULAR 1
 #define SPECIAL 2
@@ -924,7 +924,6 @@ int main()
             continue;
         }
     }
-    
     else if(count == 4)
     {
         if(strcmp(command[0],"lseek")== 0)
