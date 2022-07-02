@@ -204,7 +204,7 @@ void CreateDILB()
          newn->FileSize=0;
          newn->Buffer = NULL;
          newn->next = NULL;
-         newn->InodeNumber = 0;
+         newn->InodeNumber = i;
 
             if(temp==NULL)
             {
