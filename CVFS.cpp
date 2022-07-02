@@ -396,8 +396,8 @@ int OpenFile(char *name, int mode)
         if(UFDTArr[i].ptrfiletable == NULL)
         {
             break;
-            i++;
         }
+        i++;
     }
     UFDTArr[i].ptrfiletable = (PFILETABLE)malloc(sizeof(FILETABLE));
     if(UFDTArr[i].ptrfiletable == NULL)
@@ -793,7 +793,7 @@ int main()
                     continue;
                 }
                 printf("Enter the data :\n");
-                scanf("%[^\n]s",arr);
+                scanf("%[^\n]",arr);
                 ret = strlen(arr);
                 if(ret == 0)
                 {
