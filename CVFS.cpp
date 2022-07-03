@@ -381,7 +381,7 @@ int OpenFile(char *name, int mode)
 {
     int i=0;
     PINODE temp = NULL;
-    if(name == NULL || mode<    0)
+    if(name == NULL || mode<=0)
     {
         return -1;
     }
@@ -912,11 +912,11 @@ int main()
                     {
                         printf("ERROR : It is not regukar file\n");
                     }
-                    else if(ret==0)
+                    if(ret==0)
                     {
                         printf("Error: File empty\n");
                     }
-                    else if(ret > 0)
+                    if(ret > 0)
                     {
                         write(2,ptr,ret);
                     }            
