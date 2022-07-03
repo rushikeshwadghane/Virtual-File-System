@@ -35,7 +35,7 @@ typedef struct inode
     char *Buffer;
     int LinkCount;
     int ReferanceCount;
-    int permission; //1 23
+    int permission; //1 2 3
     struct inode *next;
 }INODE,*PINODE,**PPINODE;
 
@@ -224,7 +224,7 @@ void CreateDILB()
 void InitialiseSuperBlock()
 {
     int i = 0;
-    while(i<MAXINODE)
+    while(i < MAXINODE)
     {
         UFDTArr[i].ptrfiletable = NULL;
         i++;
@@ -261,8 +261,10 @@ int CreateFile(char *name ,int permission)
     }
     while(i<MAXINODE)
     {
-        if(UFDTArr[i].ptrfiletable==NULL)
-        break;
+        if(UFDTArr[i].ptrfiletable == NULL)
+        {
+            break;
+        }
         i++;
     }
 UFDTArr[i].ptrfiletable = (PFILETABLE)malloc(sizeof(FILETABLE));
@@ -300,6 +302,7 @@ int rm_File(char *name)
     if(UFDTArr[fd].ptrfiletable->ptrinode->LinkCount ==0)
     {
         UFDTArr[fd].ptrfiletable->ptrinode->FileType = 0;
+        free(UFDTArr[fd].ptrfiletable);
     
     }
     UFDTArr[fd].ptrfiletable = NULL;
@@ -342,7 +345,7 @@ int ReadFile(int fd, char *arr, int isize)
     {
         strncpy(arr,(UFDTArr[fd].ptrfiletable->ptrinode->Buffer)+(UFDTArr[fd].ptrfiletable->readoffset),isize);
 
-        UFDTArr[fd].ptrfiletable->readoffset = UFDTArr[fd].ptrfiletable->readoffset+isize;
+        (UFDTArr[fd].ptrfiletable->readoffset) = (UFDTArr[fd].ptrfiletable->readoffset)+isize;
     }     
     return isize;
 }
@@ -378,7 +381,7 @@ int OpenFile(char *name, int mode)
 {
     int i=0;
     PINODE temp = NULL;
-    if(name == NULL || mode<=0)
+    if(name == NULL || mode<    0)
     {
         return -1;
     }
@@ -477,11 +480,11 @@ int LseekFile(int fd,int size,int from)
     {
         if(from == CURRENT)
         {
-            if(((UFDTArr[fd].ptrfiletable->readoffset)+size)>UFDTArr[fd].ptrfiletable->ptrinode->FileActualSize)
+            if(((UFDTArr[fd].ptrfiletable->readoffset)+size)>(UFDTArr[fd].ptrfiletable->ptrinode->FileActualSize))
             {
                 return -1;
             }
-            else if(((UFDTArr[fd].ptrfiletable->readoffset)+size)< 0)
+            if(((UFDTArr[fd].ptrfiletable->readoffset)+size)< 0)
             {
                 return -1;
             }
@@ -501,11 +504,11 @@ int LseekFile(int fd,int size,int from)
         }
         else if(from == END)
         {
-            if((UFDTArr[fd].ptrfiletable->ptrinode->FileActualSize)+size>MAXFILESIZE)
+            if((UFDTArr[fd].ptrfiletable->ptrinode->FileActualSize)+size > MAXFILESIZE)
             {
                 return -1;
             }
-            else if(((UFDTArr[fd].ptrfiletable->readoffset)+size)<0)
+            if(((UFDTArr[fd].ptrfiletable->readoffset)+size)<0)
             {
                 return -1;
             }
@@ -520,11 +523,11 @@ int LseekFile(int fd,int size,int from)
             {
                 return -1;
             }
-            else if(((UFDTArr[fd].ptrfiletable->writeoffset)+size)< 0)
+            if(((UFDTArr[fd].ptrfiletable->writeoffset)+size)< 0)
             {
                 return -1;
             }
-            else if(((UFDTArr[fd].ptrfiletable->writeoffset)+size)>(UFDTArr[fd].ptrfiletable->ptrinode->FileActualSize))            
+            if(((UFDTArr[fd].ptrfiletable->writeoffset)+size)>(UFDTArr[fd].ptrfiletable->ptrinode->FileActualSize))            
             {
                 (UFDTArr[fd].ptrfiletable->ptrinode->FileActualSize)=(UFDTArr[fd].ptrfiletable->writeoffset)+size;
                 (UFDTArr[fd].ptrfiletable->writeoffset)=(UFDTArr[fd].ptrfiletable->writeoffset)+size;
@@ -536,11 +539,11 @@ int LseekFile(int fd,int size,int from)
             {
                 return -1;
             }
-            else if(size< 0)
+            if(size< 0)
             {
                 return -1;
             }
-            else if(size >(UFDTArr[fd].ptrfiletable->ptrinode->FileActualSize))
+            if(size >(UFDTArr[fd].ptrfiletable->ptrinode->FileActualSize))
             {
                 (UFDTArr[fd].ptrfiletable->ptrinode->FileActualSize)= size;
                 (UFDTArr[fd].ptrfiletable->writeoffset)=size;
@@ -552,7 +555,7 @@ int LseekFile(int fd,int size,int from)
             {
                 return -1;
             }
-            else if(((UFDTArr[fd].ptrfiletable->writeoffset)+size)< 0)
+            if(((UFDTArr[fd].ptrfiletable->writeoffset)+size)< 0)
             {
                 return -1;
             }
@@ -593,7 +596,7 @@ int fstat_file(int fd)
     {
         return -1;
     }
-    else if(UFDTArr[fd].ptrfiletable == NULL)
+    if(UFDTArr[fd].ptrfiletable == NULL)
     {
         return -2;
     }
@@ -700,7 +703,8 @@ int main()
 
         fgets(str,80,stdin); // scanf("%[^'\n']s",str);
         count = sscanf(str,"%s %s %s %s",command[0],command[1],command[2],command[3]);
-        if(count==1)
+
+        if(count == 1)
         {
             if(strcmp(command[0],"ls")==0)
             {
@@ -800,7 +804,7 @@ int main()
                     printf("Error : Incorrect parameter\n");
                     continue;
                 }
-                ret = WriteFile(fd,arr,ret);
+                ret = WriteFile(fd,arr,ret);                         // to Write the data
                 if(ret == -1)
                 {
                     printf("Error : Permission denied\n");
@@ -828,40 +832,14 @@ int main()
                 continue;
             }                                                                        
         }
-    else if(count == 3)
-    {
-        if(strcmp(command[0],"create")== 0)
+        else if(count == 3)
         {
-            ret = CreateFile(command[1],atoi(command[2]));
-            if(ret>=0)
+            if(strcmp(command[0],"create")== 0)
             {
-                printf("file is successfully created with file descriptor : %d\n",ret);
-            }
-            if(ret == -1)
-            {
-                printf("ERROR: Incorrect parameter:");
-            }
-            if(ret== -2)
-            {
-                printf("There is no inodes\n");
-            }
-            if(ret == -3)
-            {
-                printf("ERROR : File already exist\n");
-            }
-            if(ret == -4)
-            {
-                printf("ERROR : Memory allocation failure\n");
-            }
-            continue;
-        }
-        
-        else if(strcmp(command[0],"open")==0)
-        {
-            ret  = OpenFile(command[1],atoi(command[2]));
+                ret = CreateFile(command[1],atoi(command[2]));
                 if(ret>=0)
                 {
-                    printf("file is successfully opened with file descriptor : %d\n",ret);
+                    printf("file is successfully created with file descriptor : %d\n",ret);
                 }
                 if(ret == -1)
                 {
@@ -869,54 +847,107 @@ int main()
                 }
                 if(ret== -2)
                 {
-                    printf("ERROR: File not present\n");
+                    printf("There is no inodes\n");
                 }
                 if(ret == -3)
                 {
-                    printf("ERROR : Permission denied\n");
-                }
-                continue;            
-        }
-        else  if((command[0],"read")==0)
-        {
-            fd = GetFDFromName(command[1]);
-            if(fd== -1)
-            {
-                printf("Error : Incorrect parameter\n");
-                continue;
-            }
-            ptr = (char*)malloc(sizeof(atoi(command[2]))+1);
-            if(ptr==NULL)
-            {
-                printf("Error : Memory allocation failed\n");
-                continue;
-            }
-            ret = ReadFile(fd,ptr,atoi(command[2]));
-                if(ret == -1)
-                {
-                    printf("ERROR: File not Exitsting\n");
-                }
-                if(ret== -2)
-                {
-                    printf("Error: Permission denied\n");
-                }
-                if(ret == -3)
-                {
-                    printf("ERROR : Reached at the end of file\n");
+                    printf("ERROR : File already exist\n");
                 }
                 if(ret == -4)
                 {
-                    printf("ERROR : It is not regukar file\n");
+                    printf("ERROR : Memory allocation failure\n");
                 }
-                else if(ret==0)
-                {
-                    printf("Error: File empty\n");
-                }
-                else if(ret > 0)
-                {
-                    write(2,ptr,ret);
-                }            
                 continue;
+            }
+            
+            else if(strcmp(command[0],"open")==0)
+            {
+                ret  = OpenFile(command[1],atoi(command[2]));
+                    if(ret>=0)
+                    {
+                        printf("file is successfully opened with file descriptor : %d\n",ret);
+                    }
+                    if(ret == -1)
+                    {
+                        printf("ERROR: Incorrect parameter:");
+                    }
+                    if(ret== -2)
+                    {
+                        printf("ERROR: File not present\n");
+                    }
+                    if(ret == -3)
+                    {
+                        printf("ERROR : Permission denied\n");
+                    }
+                    continue;            
+            }
+            else  if((command[0],"read")==0)
+            {
+                fd = GetFDFromName(command[1]);
+                if(fd== -1)
+                {
+                    printf("Error : Incorrect parameter\n");
+                    continue;
+                }
+                ptr = (char*)malloc(sizeof(atoi(command[2]))+1);
+                if(ptr==NULL)
+                {
+                    printf("Error : Memory allocation failed\n");
+                    continue;
+                }
+                ret = ReadFile(fd,ptr,atoi(command[2]));
+                    if(ret == -1)
+                    {
+                        printf("ERROR: File not Exitsting\n");
+                    }
+                    if(ret== -2)
+                    {
+                        printf("Error: Permission denied\n");
+                    }
+                    if(ret == -3)
+                    {
+                        printf("ERROR : Reached at the end of file\n");
+                    }
+                    if(ret == -4)
+                    {
+                        printf("ERROR : It is not regukar file\n");
+                    }
+                    else if(ret==0)
+                    {
+                        printf("Error: File empty\n");
+                    }
+                    else if(ret > 0)
+                    {
+                        write(2,ptr,ret);
+                    }            
+                    continue;
+            }
+            else
+            {
+                printf("\nError : Command not found!!\n");
+                continue;
+            }
+        }
+        else if(count == 4)
+        {
+            if(strcmp(command[0],"lseek")== 0)
+            {
+                fd = GetFDFromName(command[1]);
+                if(fd == -1)
+                {
+                    printf("Error : Incorrect parameter\n");
+                    continue;
+                }
+                ret = LseekFile(fd,atoi(command[2]),atoi(command[3]));
+                if(ret == -1)
+                {
+                    printf("Error : Unable to perform lssek\n");
+                }
+            }
+            else{
+                printf("\nError : Command not found!!\n");
+                continue;
+            }
         }
         else
         {
@@ -924,32 +955,5 @@ int main()
             continue;
         }
     }
-    else if(count == 4)
-    {
-        if(strcmp(command[0],"lseek")== 0)
-        {
-            fd = GetFDFromName(command[1]);
-            if(fd == -1)
-            {
-                printf("Error : Incorrect parameter\n");
-                continue;
-            }
-            ret = LseekFile(fd,atoi(command[2]),atoi(command[3]));
-            if(ret == -1)
-            {
-                printf("Error : Unable to perform lssek\n");
-            }
-        }
-        else{
-            printf("\nError : Command not found!!\n");
-            continue;
-        }
-    }
-    else
-    {
-        printf("\nError : Command not found!!\n");
-        continue;
-    }
-}
-    return 0 ;    
-}
+        return 0 ;    
+}           
