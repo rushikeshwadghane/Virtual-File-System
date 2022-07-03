@@ -245,7 +245,8 @@ int CreateFile(char *name ,int permission)
     {
         return -2;
     }
-    (SUPERBLOCKobj.TotalInodes)--;
+
+    (SUPERBLOCKobj.FreeInodes)--;
 
     if(Get_Inode(name)!= NULL)
     {
