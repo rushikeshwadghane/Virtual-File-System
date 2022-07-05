@@ -380,7 +380,7 @@ int WriteFile(int fd,char *arr,int isize)
 
 int OpenFile(char *name, int mode)
 {
-    int i=0;
+    int i= 0;
     PINODE temp = NULL;
     if(name == NULL || mode<=0)
     {
@@ -395,7 +395,7 @@ int OpenFile(char *name, int mode)
     {
         return -3;
     } 
-    while(i<MAXINODE)
+    while(i < MAXINODE)
     {
         if(UFDTArr[i].ptrfiletable == NULL)
         {
@@ -798,8 +798,9 @@ int main()
                     continue;
                 }
                 printf("Enter the data :\n");
-                scanf("%[^\n]",arr);
+                scanf("%[^\n]s",arr);
                 ret = strlen(arr);
+
                 if(ret == 0)
                 {
                     printf("Error : Incorrect parameter\n");
@@ -882,7 +883,7 @@ int main()
                     }
                     continue;            
             }
-            else  if((command[0],"read")==0)
+            else  if(strcmp(command[0],"read")==0)
             {
                 fd = GetFDFromName(command[1]);
                 if(fd== -1)
