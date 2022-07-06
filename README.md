@@ -34,6 +34,3 @@ rm      : To delete the file <br>
 •Reference:
  Linux System Programming\
     by Robert Love
-
-
-
